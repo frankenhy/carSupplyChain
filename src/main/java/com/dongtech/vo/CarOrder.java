@@ -8,11 +8,11 @@ import java.math.BigDecimal;
  * @program: springboot-jsp
  * @description: ${description}
  */
-public class CarOrders {
+public class CarOrder {
     private Long id;
     private String number;
-
     private BigDecimal price;
+    private int tearDownFlag;
 
     public Long getId() {
         return id;
@@ -38,9 +38,18 @@ public class CarOrders {
         this.price = price;
     }
 
-    public CarOrders(Long id, String number, BigDecimal price) {
+    public int getTearDownFlag() {
+        return tearDownFlag;
+    }
+
+    public void setTearDownFlag(int tearDownFlag) {
+        this.tearDownFlag = tearDownFlag;
+    }
+
+    public CarOrder(Long id, String number, BigDecimal price, int tearDownFlag) {
         this.id = id;
         this.number = number;
         this.price = price;
+        this.tearDownFlag = tearDownFlag;
     }
 }

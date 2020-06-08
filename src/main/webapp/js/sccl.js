@@ -347,8 +347,8 @@ $(function(){
 	var bookUrl = _appPath +"book/book.action";
 	var menu = [{"id":"1","name":"主菜单","parentId":"0","url":"","icon":"","order":"1","isHeader":"1","childMenus":[
 					{"id":"3","name":"物品信息","parentId":"1","url":"","icon":"&#xe604;","order":"1","isHeader":"0","childMenus":[
-						{"id":"31","name":"物品列表","parentId":"3","url":""+_appPath+"cargoods/queryList","icon":"","order":"1","isHeader":"0","childMenus":""}
-                        ,{"id":"31","name":"下单列表","parentId":"3","url":""+_appPath+"cargoods/queryorders","icon":"","order":"1","isHeader":"0","childMenus":""}
+						{"id":"31","name":"物品列表","parentId":"3","url":""+_appPath+"carGoods/queryList","icon":"","order":"1","isHeader":"0","childMenus":""}
+                        ,{"id":"31","name":"下单列表","parentId":"3","url":""+_appPath+"carGoods/queryOrder","icon":"","order":"1","isHeader":"0","childMenus":""}
 
                     ]}
 					// ,

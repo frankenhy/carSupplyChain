@@ -8,7 +8,7 @@ import java.math.BigDecimal;
  * @program: springboot-jsp
  * @description: ${description}
  */
-public class CarOrderDetails {
+public class CarOrderDetail {
     private Long id;
     private String goodsname;
     private Integer num;
@@ -17,12 +17,9 @@ public class CarOrderDetails {
     //单价
     private BigDecimal price;
 
-    private Integer orderId;
+    private Long orderId;
 
-    public CarOrderDetails() {
-    }
-
-    public CarOrderDetails(Long id, String goodsname, Integer num, String produce, BigDecimal price, Integer orderId) {
+    public CarOrderDetail(Long id, String goodsname, Integer num, String produce, BigDecimal price, Long orderId) {
         this.id = id;
         this.goodsname = goodsname;
         this.num = num;
@@ -71,11 +68,11 @@ public class CarOrderDetails {
         this.price = price;
     }
 
-    public Integer getOrderId() {
+    public Long getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(Integer orderId) {
+    public void setOrderId(Long orderId) {
         this.orderId = orderId;
     }
 }

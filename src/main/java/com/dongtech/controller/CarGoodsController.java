@@ -1,12 +1,13 @@
 package com.dongtech.controller;
 
-import com.dongtech.service.CarVGoodsService;
-import com.dongtech.vo.CarGoods;
-import com.dongtech.vo.CarOrderDetails;
-import com.dongtech.vo.CarOrders;
-import com.dongtech.vo.Cart;
+import com.dongtech.service.CarGoodsService;
+import com.dongtech.util.CartUtil;
+import com.dongtech.util.WebUtil;
+import com.dongtech.vo.*;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
@@ -14,10 +15,11 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author gzl
@@ -26,12 +28,12 @@ import java.util.List;
  * @description: ${description}
  */
 @Controller
-@RequestMapping("cargoods")
+@RequestMapping("carGoods")
 public class CarGoodsController {
 
 
     @Resource
-    private  CarVGoodsService carVGoodsService;
+    private CarGoodsService carVGoodsService;
 
 
     /**
@@ -67,9 +69,9 @@ public class CarGoodsController {
      * @Exception
      * @Date： 2020/4/19 11:59 PM
      */
-    @RequestMapping("/queryorders")
-    public ModelAndView QueryOrders()  {
-        List<CarOrders> list =carVGoodsService.queryOrders();
+    @RequestMapping("/queryOrder")
+    public ModelAndView queryOrder()  {
+        List<CarOrder> list =carVGoodsService.queryOrder();
         /**
          * 模型和视图
          * model模型: 模型对象中存放了返回给页面的数据
@@ -79,7 +81,7 @@ public class CarGoodsController {
         //将返回给页面的数据放入模型和视图对象中
         modelAndView.addObject("list", list);
         //指定返回的页面位置
-        modelAndView.setViewName("carGoods/orderlist");
+        modelAndView.setViewName("carGoods/orderList");
         return modelAndView;
     }
 
@@ -89,9 +91,9 @@ public class CarGoodsController {
      * @Exception
      * @Date： 2020/4/19 11:59 PM
      */
-    @RequestMapping("/queryordersdetails")
-    public ModelAndView QueryOrdersDetails(Integer id)  {
-        List<CarOrderDetails> list =carVGoodsService.queryOrdersDetails(id);
+    @RequestMapping("/queryOrderDetail/{orderId}")
+    public ModelAndView queryOrderDetail(@PathVariable Integer orderId)  {
+        List<CarOrderDetail> list =carVGoodsService.queryOrderDetail(orderId);
         /**
          * 模型和视图
          * model模型: 模型对象中存放了返回给页面的数据
@@ -101,83 +103,220 @@ public class CarGoodsController {
         //将返回给页面的数据放入模型和视图对象中
         modelAndView.addObject("list", list);
         //指定返回的页面位置
-        modelAndView.setViewName("carGoods/orderdetailslist");
+        modelAndView.setViewName("carGoods/orderDetailList");
         return modelAndView;
     }
 
-
-
     /**
-     * 获取cookie中的购物车列表
-     *
-     * @param response
+     * 添加商品到购物车
+     * @param id
      * @param request
-     * @return 购物车列表
-     * @throws UnsupportedEncodingException 抛出异常
+     * @param response
+     * @return
      */
-    public List<Cart> getCartInCookie(HttpServletResponse response, HttpServletRequest request) throws
-            UnsupportedEncodingException {
-        // 定义空的购物车列表
-        List<Cart> items = new ArrayList<>();
-        String value_1st ;
-        // 购物cookie
-        Cookie cart_cookie = getCookie(request);
-        // 判断cookie是否为空
-        if (cart_cookie != null) {
-            // 获取cookie中String类型的value,从cookie获取购物车
-            value_1st = URLDecoder.decode(cart_cookie.getValue(), "utf-8");
-            // 判断value是否为空或者""字符串
-            if (value_1st != null && !"".equals(value_1st)) {
-                // 解析字符串中的数据为对象并封装至list中返回给上一级
-                String[] arr_1st = value_1st.split("==");
-                for (String value_2st : arr_1st) {
-                    String[] arr_2st = value_2st.split("=");
-                    Cart item = new Cart();
-                    item.setId(Long.parseLong(arr_2st[0])); //商品id
-                    item.setType(arr_2st[1]); //商品类型ID
-                    item.setName(arr_2st[2]); //商品名
-                    item.setDescription(arr_2st[4]);//商品详情
-                    item.setPrice(Integer.parseInt(arr_2st[3])); //商品市场价格
-                    item.setNum(Integer.parseInt(arr_2st[5]));//加入购物车数量
-                    items.add(item);
+    @RequestMapping("/addGoodsToCart")
+    @ResponseBody
+    public String addGoodsToCart(int id, HttpServletRequest request, HttpServletResponse response){
+//        System.out.println(id);
+        String result = "Ok";
+
+        try {
+            Cookie cookie;
+
+            //根据id获取商品信息
+            CarGoods carGoods = new CarGoods();
+            carGoods.setId((long) id);
+            List<CarGoods> carGoodsList = carVGoodsService.queryList(carGoods);
+            if (carGoodsList.size()<=0){
+                return "无库存";
+            }
+            carGoods = carGoodsList.get(0);
+
+            //从Cookie中获取购物车信息
+            List<Cart> cartInCookie= CartUtil.getCartInCookie(response, request);
+
+            int exists = 0;
+            //如购物车中商品已存在，先判断库存是否满足，满足则数量+1
+            for (Cart cart : cartInCookie) {
+                if (cart.getId() == (long) id) {
+                    if (cart.getNum() < carGoods.getNum()) {
+                        cart.setNum(cart.getNum() + 1);
+                        exists = 1;
+                        break;
+                    } else {
+                        return "购买数量大于库存数量";
+                    }
+
                 }
             }
-        }
-        return items;
+            //如购物车中商品不存在，则加入商品
+            if (exists == 0) {
+                Cart cart = CartUtil.copyCarGoods(carGoods);
+                cart.setNum(1);
+                cartInCookie.add(cart);
+            }
 
+            //Cookie更新购物车
+            WebUtil.addCookie(response, CartUtil.CART,
+                    URLEncoder.encode(CartUtil.makeCookieValue(cartInCookie), "utf-8"), 60 * 30);
+
+            result = "Ok";
+        } catch (Exception e) {
+            e.printStackTrace();
+            result="Failed";
+        }
+
+        return result;
     }
 
     /**
-     * 获取名为"cart"的cookie
+     * 获取购物车列表
      *
      * @param request
-     * @return cookie
+     * @param response
+     * @return 购物车列表
      */
-    public Cookie getCookie(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        Cookie cart_cookie = null;
-        for (Cookie cookie : cookies) {
-            //获取购物车cookie
-            if ("cart".equals(cookie.getName())) {
-                cart_cookie = cookie;
-            }
+    @RequestMapping("/getCart")
+    public ModelAndView getCart(HttpServletRequest request, HttpServletResponse response){
+        ModelAndView modelAndView = new ModelAndView();
+        try {
+            List<Cart> carts = CartUtil.getCartInCookie(response, request);
+            modelAndView.addObject(CartUtil.CART, carts);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
-        return cart_cookie;
+        modelAndView.setViewName("carGoods/cartList");
+        return  modelAndView;
     }
 
     /**
-     * 制作cookie所需value
-     *
-     * @param cartVos 购物车列表
-     * @return 解析为字符串的购物车列表，属性间使用"="相隔，对象间使用"=="相隔
+     * 下单
+     * @return
      */
-    public String makeCookieValue(List<Cart> cartVos) {
-        StringBuffer buffer_2st = new StringBuffer();
-        for (Cart item : cartVos) {
-            buffer_2st.append(item.getId() + "=" + item.getType() + "=" + item.getName() + "="
-                    + item.getPrice() + "=" + item.getDescription() + "=" + item.getNum() + "==");
+    @RequestMapping("/addOrder")
+    public ModelAndView addOrder(HttpServletRequest request, HttpServletResponse response){
+        ModelAndView modelAndView = new ModelAndView();
+
+        try {
+            //获取购物车商品
+            List<Cart> carts = CartUtil.getCartInCookie(response, request);
+            if (carts.size()<=0){
+                throw new Exception("购物车为空");
+            }
+            //下单
+            if(!carVGoodsService.saveOrder(carts)){
+                throw new Exception("下单失败");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            modelAndView.addObject("error", e.getLocalizedMessage());
+            modelAndView.setViewName("/error");
+            return modelAndView;
         }
-        return buffer_2st.toString().substring(0, buffer_2st.toString().length() - 2);
+
+        //清空购物车
+        WebUtil.addCookie(response, CartUtil.CART, null, 0);
+
+        modelAndView.setViewName("carGoods/cartList");
+        return  modelAndView;
     }
 
+    /**
+     * 清空购物车
+     * @param response
+     * @param request
+     * @return
+     */
+    @RequestMapping("deleteAllCart")
+    public ModelAndView deleteAllCart(HttpServletResponse response, HttpServletRequest request){
+        WebUtil.addCookie(response, CartUtil.CART, null, 0);
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("carGoods/cartList");
+        return  modelAndView;
+
+    }
+
+    /**
+     * 删除购物车中的商品
+     * @param id
+     * @param num 删除商品的数量，0为全部
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping("/delGoodsInCart")
+    public ModelAndView delGoodsInCart(int id, int num, HttpServletRequest request, HttpServletResponse response){
+
+        ModelAndView modelAndView = new ModelAndView();
+        try {
+            List<Cart> cartInCookie = CartUtil.getCartInCookie(response, request);
+
+            //判断删除全部商品还是减少数量
+            if (num==0) {
+                cartInCookie.removeIf(cart -> cart.getId() == id);
+            }
+            else{
+                cartInCookie.stream().filter(cart -> cart.getId() == id)
+                        .forEach(cart -> {
+                    cart.setNum(cart.getNum()-1);
+                });
+            }
+            //删除数量为0的商品
+            cartInCookie.removeIf(cart -> cart.getNum()==0);
+
+            //若购物车中没有商品，则删除购物车
+            if(cartInCookie.size()<=0){
+                WebUtil.addCookie(response, CartUtil.CART,
+                        null, 0);
+            }else{
+                WebUtil.addCookie(response, CartUtil.CART,
+                        URLEncoder.encode(CartUtil.makeCookieValue(cartInCookie), "utf-8"), 60 * 30);
+            }
+            modelAndView.addObject(CartUtil.CART, cartInCookie);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        modelAndView.setViewName("carGoods/cartList");
+        return  modelAndView;
+    }
+
+    /**
+     * 拆单请求
+     * @param orderId
+     * @return
+     */
+    @RequestMapping("/tearDownDetail")
+    @ResponseBody
+    public String tearDownDetail(int orderId){
+        if(carVGoodsService.tearDown(orderId))
+            return "Ok";
+        else
+            return "Failed";
+    }
+
+    /**
+     * 按商品统计销售额
+     * @return
+     */
+    @RequestMapping("/salesSumByGoods")
+    @ResponseBody
+    public Object salesSumByGoods(){
+
+        List<SalesSum> salesSums = carVGoodsService.salesSum("goods_name");
+        return salesSums;
+
+    }
+
+    /**
+     * 按供应商统计销售额
+     * @return
+     */
+    @RequestMapping("/salesSumByProduce")
+    @ResponseBody
+    public Object salesSumByProduce(){
+
+        List<SalesSum> salesSums = carVGoodsService.salesSum("produce");
+        return salesSums;
+
+    }
 }

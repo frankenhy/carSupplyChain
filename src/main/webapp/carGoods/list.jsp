@@ -9,24 +9,49 @@
     <link rel="stylesheet" href="../css/list.css">
     <title>维护图书</title>
 </head>
+<script src="/js/jquery-1.8.2.min.js"></script>
+<script>
+    function addToCart(id){
+        $.post("addGoodsToCart",
+            {
+                "id":id
+            },
+            function(data, status){
+                alert("加入购物车: " + data);
+                location.reload();
+            });
+    }
+</script>
 <body>
 <div class="w">
     <header>
-        <a href="${pageContext.request.contextPath }/cargoods/getCart" >
-            <input type="button" οnclick="javascrtpt:window.location.href='${pageContext.request.contextPath}/cargoods/getCart'" value="我的购物车" class="btn">
+        <a href="#" >
+            <input type="button" onclick="javascrtpt:window.location.href='${pageContext.request.contextPath}/carGoods/getCart'" value="我的购物车" class="btn">
         </a>
     </header>
     <div class="list">
         <div class="list-bd">
             <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
-                <tr>
-                    <th width="18%">名称</th>
-                    <th width="18%">描述</th>
-                    <th width="5%">价格</th>
-                    <th width="10%">生产商</th>
-                    <th width="9%">操作</th>
-                </tr>
-
+                <thead>
+                    <tr>
+                        <th width="18%">名称</th>
+                        <th width="18%">描述</th>
+                        <th width="5%">价格</th>
+                        <th width="10%">生产商</th>
+                        <th width="9%">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <c:forEach var="goods" items="${list}">
+                    <tr>
+                        <td >${goods.name}</td>
+                        <td >${goods.description}</td>
+                        <td >${goods.price}</td>
+                        <td >${goods.produce}</td>
+                        <td ><a href="#" class="abtn" onclick="addToCart(${goods.id});">加入购物车</a></td>
+                    </tr>
+                </c:forEach>
+                </tbody>
             </table>
         </div>
     </div>

@@ -15,7 +15,7 @@ public class CarGoods {
     private String produce;//出厂地址
     private BigDecimal price;//单价
     private String type;//类别
-    private String description;//书本详情
+    private String description;//商品详情
     private Integer num;//库存数
 
     public Long getId() {

@@ -1,4 +1,4 @@
-package com.dongtech;
+package com.dongtech.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @Description:
  */
 @Controller
-public class TestController {
+public class IndexController {
 
-    //http://localhost:8081/index
+    //http://localhost:8080/index
     @RequestMapping("/index")
     public String index(){
         return "index";

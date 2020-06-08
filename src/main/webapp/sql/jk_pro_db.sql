@@ -17,22 +17,29 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
+create database if not exists carSupplyChain default charset utf8 collate utf8_general_ci;
+use mysql;
+create user if not exists 'carsc'@'%' identified by '!jiker123456';
+grant all privileges on carSupplyChain.* to 'carsc'@'%';
+use carSupplyChain;
+
 -- ----------------------------
 -- Table structure for car_orders
 -- ----------------------------
 DROP TABLE IF EXISTS `car_orders`;
 CREATE TABLE `car_orders` (
-  `id` int(20) NOT NULL,
-  `number` varchar(50) COLLATE utf8_bin DEFAULT NULL COMMENT '订单编号',
+  `id` int(20) NOT NULL AUTO_INCREMENT,
+  `number` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '订单编号',
   `price` decimal(10,2) DEFAULT NULL COMMENT '总金额',
+  `teardown_flag` int(11) DEFAULT '0' COMMENT '拆单标识',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
 -- Records of car_orders
 -- ----------------------------
 BEGIN;
-INSERT INTO `car_orders` VALUES (1, '23234234', 45.00);
+INSERT INTO `car_orders` VALUES (1, 'ORD2020060100001', 45.00);
 COMMIT;
 
 -- ----------------------------
@@ -40,14 +47,14 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `car_orders_details`;
 CREATE TABLE `car_orders_details` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `goods_name` varchar(255) COLLATE utf8_bin DEFAULT NULL COMMENT '物品名称',
   `num` int(20) DEFAULT NULL COMMENT '物品数量',
   `produce` varchar(255) COLLATE utf8_bin DEFAULT NULL COMMENT '生产商',
   `price` decimal(10,2) DEFAULT NULL COMMENT '价格',
   `order_id` int(20) DEFAULT NULL COMMENT '订单外建',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
 -- Records of car_orders_details
@@ -77,10 +84,10 @@ CREATE TABLE `cargoods` (
 -- Records of cargoods
 -- ----------------------------
 BEGIN;
-INSERT INTO `cargoods` VALUES (1, '001', '后视镜', '北京厂', 1.00, '1', '全金属外壳', 10);
-INSERT INTO `cargoods` VALUES (2, '002', '玻璃', '北京厂', 89.00, '3', '钢化玻璃', 10);
-INSERT INTO `cargoods` VALUES (3, '003', '前灯', '北京厂', 16.00, '4', '高亮度', 10);
-INSERT INTO `cargoods` VALUES (4, '003', '前保险杠', '北京厂', 33.00, '2', '高强度', 10);
+INSERT INTO `cargoods` VALUES (1, '001', '后视镜', '北京', 1.00, '1', '全金属外壳', 10);
+INSERT INTO `cargoods` VALUES (2, '002', '玻璃', '北京', 89.00, '3', '钢化玻璃', 10);
+INSERT INTO `cargoods` VALUES (3, '003', '前灯', '上海', 16.00, '4', '高亮度', 10);
+INSERT INTO `cargoods` VALUES (4, '004', '前保险杠', '上海', 33.00, '2', '高强度', 10);
 COMMIT;
 
 -- ----------------------------
@@ -88,12 +95,12 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `tear_down_details`;
 CREATE TABLE `tear_down_details` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `order_id` int(11) DEFAULT NULL,
   `produce` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `cargoods_name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `num` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 SET FOREIGN_KEY_CHECKS = 1;

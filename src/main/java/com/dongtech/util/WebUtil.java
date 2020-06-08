@@ -31,9 +31,10 @@ public class WebUtil {
     public static void addCookie(HttpServletResponse response, String name,
                                  String value, int maxAge) {
         Cookie cookie = new Cookie(name, value);
-        if (maxAge > 0)
+//        if (maxAge > 0)
             cookie.setMaxAge(maxAge);
-// 添加到客户端
+        // 添加到客户端
+        cookie.setPath("/");
         response.addCookie(cookie);
     }
 
@@ -66,6 +67,24 @@ public class WebUtil {
         if(cookie_map.containsKey(name)){
             Cookie cookie = cookie_map.get(name);
             return cookie.getValue();
+        }
+        return null;
+    }
+
+    /**
+     * 获取名为"cookieName"的cookie
+     *
+     * @param request
+     * @param cookieName
+     * @return cookie
+     */
+    public static Cookie getCookie(HttpServletRequest request, String cookieName) {
+        Cookie[] cookies = request.getCookies();
+        for (Cookie c : cookies) {
+            //获取cookie
+            if (cookieName.equals(c.getName())) {
+                return c;
+            }
         }
         return null;
     }

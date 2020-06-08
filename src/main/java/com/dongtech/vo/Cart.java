@@ -1,6 +1,7 @@
 package com.dongtech.vo;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * @author gzl
@@ -18,12 +19,12 @@ public class Cart implements Serializable {
     //出厂地址
     private String produce;
     //单价
-    private int price;
+    private BigDecimal price;
     //类别
     private String type;
-    //书本详情
+    //详情
     private String description;
-    //库存数
+    //购买数
     private Integer num;
 
 
@@ -59,11 +60,11 @@ public class Cart implements Serializable {
         this.produce = produce;
     }
 
-    public int getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 

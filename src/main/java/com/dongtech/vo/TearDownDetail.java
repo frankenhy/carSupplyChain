@@ -8,9 +8,9 @@ import java.math.BigDecimal;
  * @program: springboot-jsp
  * @description: ${description}
  */
-public class TearDownDetails {
+public class TearDownDetail {
     private Long id;
-    private Integer orderId;
+    private Long orderId;
     private String produce;
     private String cargoods_name;
     private Integer num;
@@ -23,11 +23,11 @@ public class TearDownDetails {
         this.id = id;
     }
 
-    public Integer getOrderId() {
+    public Long getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(Integer orderId) {
+    public void setOrderId(Long orderId) {
         this.orderId = orderId;
     }
 
@@ -55,10 +55,10 @@ public class TearDownDetails {
         this.num = num;
     }
 
-    public TearDownDetails() {
+    public TearDownDetail() {
     }
 
-    public TearDownDetails(Long id, Integer orderId, String produce, String cargoods_name, Integer num) {
+    public TearDownDetail(Long id, Long orderId, String produce, String cargoods_name, Integer num) {
         this.id = id;
         this.orderId = orderId;
         this.produce = produce;

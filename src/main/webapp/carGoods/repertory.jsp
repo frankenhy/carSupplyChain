@@ -12,6 +12,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
     <!-- 引入 echarts.js -->
     <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
 </head>
+<script src="/js/jquery-1.8.2.min.js"></script>
 <body>
 <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
 <div id="main" style="width: 600px;height:400px;"></div>
@@ -19,37 +20,51 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <div id="main1" style="width: 600px;height:400px;"></div>
 <script type="text/javascript">
     // 基于准备好的dom，初始化echarts实例
-    var myChart = echarts.init(document.getElementById('main'));
+    var myChart1 = echarts.init(document.getElementById('main'));
 
     // 指定图表的配置项和数据
-    var option = {
+    var option1 = {
         title: {
-            text: '第一个 ECharts 实例'
+            text: '商品销售额'
         },
         tooltip: {},
         legend: {
-            data:['销量']
+            data:['销售额']
         },
         xAxis: {
-            data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
         },
         yAxis: {},
         series: [{
-            name: '销量',
-            type: 'bar',
-            data: [5, 20, 36, 10, 10, 20]
-        }]
+            name: '销售额',
+            type: 'bar'
+            }]
     };
 
-    // 使用刚指定的配置项和数据显示图表。
-    myChart.setOption(option);
+    var arrayGoods = new Array();//X轴
+    $.ajax({
+        url:"/carGoods/salesSumByGoods",
+        type:"Get",
+        dataType:"json",
+        success:function(data){
+            console.log(data);
+            for(var i = 0; i < data.length; i++){
+                arrayGoods.push(data[i].name);//存入标题
+            }
+
+            option1.xAxis.data=arrayGoods;
+            option1.series[0].data=data;
+            // 使用刚指定的配置项和数据显示图表。
+            myChart1.setOption(option1);
+        }
+    });
 
 
-    var myChart = echarts.init(document.getElementById('main1'));
-    option = {
+
+    var myChart2 = echarts.init(document.getElementById('main1'));
+    option2 = {
         title : {
-            text: '某站点用户访问来源',       //大标题
-            subtext: '纯属虚构',                //类似于副标题
+            text: '按供应商统计销售额',       //大标题
+
             x:'center'                 //标题位置   居中
         },
         tooltip : {
@@ -58,22 +73,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
         },
         legend: {                           //图例组件。
             orient: 'vertical',             //图例列表的布局朝向
-            left: 'left',
-            data: ['直接访问','邮件营销','联盟广告','视频广告','搜索引擎']
+            left: 'left'
         },
         series : [              //系列列表。每个系列通过 type 决定自己的图表类型
             {
-                name: '访问来源',
+                name: '销售额',
                 type: 'pie',
                 radius : '55%',
                 center: ['50%', '60%'],
-                data:[
-                    {value:335, name:'直接访问'},
-                    {value:310, name:'邮件营销'},
-                    {value:234, name:'联盟广告'},
-                    {value:135, name:'视频广告'},
-                    {value:1548, name:'搜索引擎'}
-                ],
                 itemStyle: {
                     emphasis: {
                         shadowBlur: 10,
@@ -84,7 +91,23 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
             }
         ]
     };
-    myChart.setOption(option);
+    var arrayProduce = new Array();//legend
+    $.ajax({
+        url:"/carGoods/salesSumByProduce",
+        type:"Get",
+        dataType:"json",
+        success:function(data){
+            console.log(data);
+            for(var i = 0; i < data.length; i++){
+                arrayProduce.push(data[i].name);//存入标题
+            }
+
+            option2.legend.data=arrayProduce;
+            option2.series[0].data=data;
+            // 使用刚指定的配置项和数据显示图表。
+            myChart2.setOption(option2);
+        }
+    });
 </script>
 </body>
 </html>
