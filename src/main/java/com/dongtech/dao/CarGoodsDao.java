@@ -66,7 +66,7 @@ public interface CarGoodsDao {
 
     /**
      * 更新订单的拆单标识
-     * @param carts
+     * @param orderId
      * @return
      */
     boolean updateOrderTearDownFlag(int orderId);

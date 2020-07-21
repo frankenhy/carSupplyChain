@@ -135,25 +135,25 @@ public class CarGoodsController {
             //从Cookie中获取购物车信息
             List<Cart> cartInCookie= CartUtil.getCartInCookie(response, request);
 
-            int exists = 0;
+            final int[] exists = {0};
             //如购物车中商品已存在，先判断库存是否满足，满足则数量+1
-            for (Cart cart : cartInCookie) {
-                if (cart.getId() == (long) id) {
-                    if (cart.getNum() < carGoods.getNum()) {
-                        cart.setNum(cart.getNum() + 1);
-                        exists = 1;
-                        break;
-                    } else {
-                        return "购买数量大于库存数量";
-                    }
-
+            CarGoods finalCarGoods = carGoods;
+            cartInCookie.stream().filter(cart -> cart.getId()==(long) id).forEach(cart -> {
+                if (cart.getNum() < finalCarGoods.getNum()) {
+                    cart.setNum(cart.getNum() + 1);
+                    exists[0] = 1;
+                } else {
+                    exists[0] = -1;
                 }
-            }
+            });
+
             //如购物车中商品不存在，则加入商品
-            if (exists == 0) {
+            if (exists[0] == 0) {
                 Cart cart = CartUtil.copyCarGoods(carGoods);
                 cart.setNum(1);
                 cartInCookie.add(cart);
+            }else if(exists[0] == -1) {
+                return "购买数量大于库存数量";
             }
 
             //Cookie更新购物车
